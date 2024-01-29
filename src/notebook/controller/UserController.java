@@ -5,16 +5,31 @@ import notebook.model.repository.GBRepository;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Scanner;
 
 public class UserController {
-    private final GBRepository repository;
+    private static GBRepository repository;
 
     public UserController(GBRepository repository) {
-        this.repository = repository;
+        UserController.repository = repository;
     }
 
     public void saveUser(User user) {
         repository.create(user);
+    }
+
+    // HM SEM 5
+    public static User createUser() {
+        String firstName = prompt("Имя: ");
+        String lastName = prompt("Фамилия: ");
+        String phone = prompt("Номер телефона: ");
+        return new User(firstName, lastName, phone);
+    }
+
+    public static String prompt(String message) {
+        Scanner in = new Scanner(System.in);
+        System.out.print(message);
+        return in.nextLine();
     }
 
     public User readUser(Long userId) throws Exception {
@@ -28,8 +43,18 @@ public class UserController {
         throw new RuntimeException("User not found");
     }
 
-    public void updateUser(String userId, User update) {
-        update.setId(Long.parseLong(userId));
-        repository.update(Long.parseLong(userId), update);
+    public void updateUser(Long userId, User update) {
+        update.setId(userId);
+        repository.update(userId, update);
     }
+
+    public static List<User> readAll() {
+        return repository.findAll();
+    }
+
+    // HM SEM 5
+    public boolean deletUser(Long id) {
+        return repository.delete(id);
+    }
+
 }

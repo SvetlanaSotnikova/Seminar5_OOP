@@ -4,8 +4,6 @@ import notebook.controller.UserController;
 import notebook.model.User;
 import notebook.util.Commands;
 
-import java.util.Scanner;
-
 public class UserView {
     private final UserController userController;
 
@@ -13,20 +11,21 @@ public class UserView {
         this.userController = userController;
     }
 
-    public void run(){
+    public void run() {
         Commands com;
 
         while (true) {
-            String command = prompt("Введите команду: ");
+            String command = UserController.prompt("Введите команду: ");
             com = Commands.valueOf(command);
-            if (com == Commands.EXIT) return;
+            if (com == Commands.EXIT)
+                return;
             switch (com) {
                 case CREATE:
-                    User u = createUser();
+                    User u = UserController.createUser();
                     userController.saveUser(u);
                     break;
                 case READ:
-                    String id = prompt("Идентификатор пользователя: ");
+                    String id = UserController.prompt("Идентификатор пользователя: ");
                     try {
                         User user = userController.readUser(Long.parseLong(id));
                         System.out.println(user);
@@ -36,22 +35,24 @@ public class UserView {
                     }
                     break;
                 case UPDATE:
-                    String userId = prompt("Enter user id: ");
-                    userController.updateUser(userId, createUser());
+                    Long userId = Long.parseLong(UserController.prompt("Enter user id: "));
+                    userController.updateUser(userId, UserController.createUser());
+                    break;
+                case DELETE: // HM SEM 5
+                    Long deleteId = Long.parseLong(UserController.prompt("Enter user id: "));
+                    boolean deleted = userController.deletUser(deleteId);
+                    if (deleted) {
+                        System.out.println("Успешно удален пользователь с id:" + deleteId);
+                    } else {
+                        System.out.println("Пользователь с id:" + deleteId + " не найден");
+                    }
+                    break;
+                case LIST:
+                    System.out.println(UserController.readAll());
+                    break;
+                default:
+                    break;
             }
         }
-    }
-
-    private String prompt(String message) {
-        Scanner in = new Scanner(System.in);
-        System.out.print(message);
-        return in.nextLine();
-    }
-
-    private User createUser() {
-        String firstName = prompt("Имя: ");
-        String lastName = prompt("Фамилия: ");
-        String phone = prompt("Номер телефона: ");
-        return new User(firstName, lastName, phone);
     }
 }
